@@ -53,11 +53,29 @@ class OwnerController {
 		this.owners = clinicService;
 	}
 
+	/*
+	 * dataBinder를 확장한 WebDataBinder
+	 * 클라이언트가 id 필드를 바인딩할 수 없게끔 부트에서 @InitBinder 메서드를 감지하여
+	 * id 필드 바인딩을 사전에 차단한다.
+	 */
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id");
 	}
 
+/*
+*     요청: http://localhost:8080/owners/find로 접속.
+    컨트롤러: initFindForm 메서드 호출.
+    뷰 반환: "owners/findOwners" 뷰 반환.
+    모델에 owner 객체 없음: @ModelAttribute 메서드가 주석 처리되어 모델에 owner 객체가 추가되지 않음.
+    템플릿 렌더링 오류: findOwners.html에서 th:object="${owner}"가 owner 객체를 찾지 못해 오류 발생.
+    에러 메시지: "An error happened during template parsing..." 메시지 출력.
+
+결론
+
+    분석한 로직은 대부분 맞습니다. @ModelAttribute 메서드가 주석 처리되면 owner 객체가 모델에 추가되지 않아 폼 바인딩이 실패하고, 결과적으로 템플릿 렌더링 오류가 발생합니다.
+    이 문제를 해결하려면 @ModelAttribute 메서드를 활성화하여 owner 객체가 모델에 추가되도록 해야 합니다.
+* */
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
 		return ownerId == null ? new Owner() : this.owners.findById(ownerId);

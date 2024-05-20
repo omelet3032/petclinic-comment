@@ -80,3 +80,11 @@ checkFormatAotTest.enabled = false
 
 formatAot.enabled = false
 formatAotTest.enabled = false
+
+/* tasks.withType(JavaCompile) {
+    options.compilerArgs << "-parameters"
+} */
+
+/* compileJava {
+    options.compilerArgs << '-parameters'
+} */

@@ -31,6 +31,12 @@ import org.springframework.validation.Validator;
  */
 public class PetValidator implements Validator {
 
+	/*
+	* gpt 궁금점
+	*
+	* 1. String REQUIRED = "required"; 굳이 이걸 왜 써주는 거지? 매개변수에 정수나 문자열을 직접 넣는건 지양해야해서 그런가?
+	* 2. petType을 별도 로직을 짜서 유효성 검증하는 건 오케이. 생일이나 이름은 왜?
+	* */
 	private static final String REQUIRED = "required";
 
 	@Override

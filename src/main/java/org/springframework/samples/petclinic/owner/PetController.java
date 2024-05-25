@@ -39,7 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * @author Arjen Poutsma
  */
 @Controller
-@RequestMapping("/owners/{ownerId}")
+@RequestMapping("/owners/{ownerId}") // 여기에 왜 RequestMapping이..?
 class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
@@ -67,7 +67,7 @@ class PetController {
 
 	@ModelAttribute("pet")
 	public Pet findPet(@PathVariable("ownerId") int ownerId,
-			@PathVariable(name = "petId", required = false) Integer petId) {
+					   @PathVariable(name = "petId", required = false) Integer petId) {
 
 		if (petId == null) {
 			return new Pet();
@@ -100,7 +100,7 @@ class PetController {
 
 	@PostMapping("/pets/new")
 	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model,
-			RedirectAttributes redirectAttributes) {
+									  RedirectAttributes redirectAttributes) {
 		if (StringUtils.hasText(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
@@ -110,6 +110,9 @@ class PetController {
 			result.rejectValue("birthDate", "typeMismatch.birthDate");
 		}
 
+		/*
+		 * 왜 type 검증은 없는걸까?
+		 * */
 		owner.addPet(pet);
 		if (result.hasErrors()) {
 			model.put("pet", pet);
@@ -123,7 +126,7 @@ class PetController {
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm(Owner owner, @PathVariable("petId") int petId, ModelMap model,
-			RedirectAttributes redirectAttributes) {
+								 RedirectAttributes redirectAttributes) {
 		Pet pet = owner.getPet(petId);
 		model.put("pet", pet);
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
@@ -131,13 +134,34 @@ class PetController {
 
 	@PostMapping("/pets/{petId}/edit")
 	public String processUpdateForm(@Valid Pet pet, BindingResult result, Owner owner, ModelMap model,
-			RedirectAttributes redirectAttributes) {
+									RedirectAttributes redirectAttributes) {
 
-		String petName = pet.getName();
+		String petName = pet.getName(); // 클라이언트가 입력한 pet의 이름
 
 		// checking if the pet name already exist for the owner
-		if (StringUtils.hasText(petName)) {
-			Pet existingPet = owner.getPet(petName.toLowerCase(), false);
+		/*
+		* StringUtils.hasText()
+		* 주어진 문자열에 실제 텍스트가 포함되어 있는지 확인합니다.
+보다 구체적으로, 이 메서드는 문자열이 null이 아니고 길이가 0보다 크며 공백이 아닌 문자를 하나 이상 포함하는 경우 true를 반환합니다.
+		* */
+		if (StringUtils.hasText(petName)) { // StringUtils.hasText를 통해 클라이언트가 입력한 petName 검증
+			Pet existingPet = owner.getPet(petName.toLowerCase(), false); // 클라이언트가 입력한 petName를 기존 db에서 추출하여 existingPet에 저장
+			/*
+			 * 사용자가 입력한 Pet의 Name이 Pet 데이터베이스에 있어
+			 * ㅇ
+				existingPet.getId() ->
+				pet.getId()
+			 *
+			 * 아.. 이해한거 같다.
+			 *
+			 * 진우가 미오를 pet에 등록했다 (petId = 1)
+			 * 진우가 미미를 추가했다. (petId = 2)
+			 * 진우가 미미의 정보를 변경하다가 이름을 실수로 미오로 입력하고 확인을 눌렀다.
+			 * 미오가 중복된 이름이라 등록이 안됐다.
+			 * existingPet.getId() -> 1 -> 미오
+			 * pet.getId() -> 2 -> 미미 -> 미오? -> x(중복)
+			 *
+			 * */
 			if (existingPet != null && existingPet.getId() != pet.getId()) {
 				result.rejectValue("name", "duplicate", "already exists");
 			}

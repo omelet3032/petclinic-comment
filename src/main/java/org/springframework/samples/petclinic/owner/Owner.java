@@ -142,6 +142,11 @@ public class Owner extends Person {
 		return null;
 	}
 
+	/*
+	ignoreNew가 있는 이유
+	클라이언트가 edit이나 add pet에서 동물 이름을 입력 안할수 있으므로..?
+	* */
+
 	@Override
 	public String toString() {
 		return new ToStringCreator(this).append("id", this.getId())

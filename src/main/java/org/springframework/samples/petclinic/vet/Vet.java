@@ -41,13 +41,22 @@ import jakarta.xml.bind.annotation.XmlElement;
  * @author Sam Brannen
  * @author Arjen Poutsma
  */
+
+/*
+ * 
+ * 클래스 설계: Vet 클래스는 Person을 상속받고, specialties와의 다대다 관계를 정의합니다.
+ * 다대다 관계: @ManyToMany와 @JoinTable을 사용하여 vet_specialties 조인 테이블을 통해 Vet와
+ * Specialty 간의 다대다 관계를 설정합니다.
+ * 컬렉션 관리: 내부적으로 specialties 컬렉션을 관리하고, 외부에는 정렬된 수정 불가능한 리스트를 제공합니다.
+ * 유틸리티 메서드: getNrOfSpecialties()와 addSpecialty(Specialty specialty) 메서드는
+ * specialties 컬렉션을 관리하기 위한 유틸리티 메서드입니다.
+ */
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
 
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
-			inverseJoinColumns = @JoinColumn(name = "specialty_id"))
+	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"), inverseJoinColumns = @JoinColumn(name = "specialty_id"))
 	private Set<Specialty> specialties;
 
 	protected Set<Specialty> getSpecialtiesInternal() {
